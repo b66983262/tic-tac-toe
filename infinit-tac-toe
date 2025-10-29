@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe (3-Mark Rule)</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the cells to handle scaling and text alignment */
+        .cell {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            user-select: none;
+            color: #E5E7EB; /* Light gray text for X and O */
+        }
+        /* Mobile adjustment for smaller screens */
+        @media (max-width: 640px) {
+            .cell {
+                width: 80px;
+                height: 80px;
+                font-size: 3rem;
+            }
+        }
+        /* Hover effect */
+        .cell:hover:not(.x):not(.o) {
+            background-color: #374151; /* Darker hover */
+        }
+
+        /* Colors for X and O */
+        .x { color: #F87171; /* Red */ } 
+        .o { color: #60A5FA; /* Blue */ }
+
+        /* The overall theme */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1F2937; /* Dark background */
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-lg">
+        <h1 class="text-3xl font-bold text-center mb-6 text-white">Tic-Tac-Toe (3-Mark Limit)</h1>
+        
+        <!-- Game Status and Message Area -->
+        <div id="status-message" class="text-center text-xl font-medium mb-6 p-3 rounded-lg bg-gray-700 text-white">
+            Player X's turn
+        </div>
+
+        <!-- Game Board (3x3 Grid) -->
+        <div id="game-board" class="grid grid-cols-3 mx-auto max-w-xs sm:max-w-md">
+            <!-- Grid cells, dynamically generated or placed here -->
+            <div data-cell-index="0" class="cell border-b-2 border-r-2 border-gray-600 rounded-tl-lg"></div>
+            <div data-cell-index="1" class="cell border-b-2 border-r-2 border-gray-600"></div>
+            <div data-cell-index="2" class="cell border-b-2 border-gray-600 rounded-tr-lg"></div>
+
+            <div data-cell-index="3" class="cell border-b-2 border-r-2 border-gray-600"></div>
+            <div data-cell-index="4" class="cell border-b-2 border-r-2 border-gray-600"></div>
+            <div data-cell-index="5" class="cell border-b-2 border-gray-600"></div>
+
+            <div data-cell-index="6" class="cell border-r-2 border-gray-600 rounded-bl-lg"></div>
+            <div data-cell-index="7" class="cell border-r-2 border-gray-600"></div>
+            <div data-cell-index="8" class="cell rounded-br-lg"></div>
+        </div>
+        
+        <!-- Restart Button -->
+        <div class="text-center mt-8">
+            <button id="restart-button" 
+                    class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md transition-all duration-150 transform active:scale-95">
+                Restart Game
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- GAME LOGIC ---
+
+        // 1. Game State Variables
+        let board = ["", "", "", "", "", "", "", "", ""]; // Represents the 9 cells
+        let currentPlayer = "X";
+        let gameActive = true;
+        const MAX_MOVES = 3; // The maximum number of marks allowed per player
+        
+        // NEW: Queues to track the last 3 move indices for each player (First-In, First-Out)
+        let xMovesQueue = [];
+        let oMovesQueue = [];
+
+        // 2. DOM Elements
+        const statusDisplay = document.getElementById('status-message');
+        const gameBoard = document.getElementById('game-board');
+        const restartButton = document.getElementById('restart-button');
+        const cells = document.querySelectorAll('.cell');
+
+        // 3. Winning Conditions (all possible 3-in-a-row combinations)
+        const winningConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+            [0, 4, 8], [2, 4, 6]             // Diagonals
+        ];
+
+        // 4. Message Functions
+        const winningMessage = () => `Player ${currentPlayer} has won!`;
+        const drawMessage = () => `Game ended in a draw!`;
+        const currentPlayerTurn = () => `Player ${currentPlayer}'s turn`;
+
+        // 5. Initial Display
+        statusDisplay.innerHTML = currentPlayerTurn();
+
+        // --- GAME FUNCTIONS ---
+
+        function handleCellPlayed(clickedCell, clickedCellIndex) {
+            const queue = currentPlayer === "X" ? xMovesQueue : oMovesQueue;
+            
+            // 1. Process the new move
+            board[clickedCellIndex] = currentPlayer;
+            clickedCell.innerHTML = currentPlayer;
+            clickedCell.classList.add(currentPlayer.toLowerCase());
+            
+            // 2. Add new move to the queue
+            queue.push(clickedCellIndex);
+
+            // 3. Implement the 3-mark constraint (queue logic)
+            if (queue.length > MAX_MOVES) {
+                // Remove the oldest move index (the first element in the queue)
+                const oldestMoveIndex = queue.shift(); 
+
+                // Clear the old position in the main board array
+                board[oldestMoveIndex] = ""; 
+
+                // Clear the old position visually
+                const oldestCell = document.querySelector(`[data-cell-index="${oldestMoveIndex}"]`);
+                if (oldestCell) {
+                    // Remove the current player's class and any highlighting from the old cell
+                    oldestCell.innerHTML = "";
+                    oldestCell.classList.remove(currentPlayer.toLowerCase(), 'bg-green-600', 'shadow-lg');
+                }
+            }
+        }
+
+        function handlePlayerChange() {
+            // Switch player and update the status message
+            currentPlayer = currentPlayer === "X" ? "O" : "X";
+            statusDisplay.innerHTML = currentPlayerTurn();
+        }
+
+        function handleResultValidation() {
+            let roundWon = false;
+            // Loop through all 8 winning conditions
+            for (let i = 0; i < winningConditions.length; i++) {
+                const winCondition = winningConditions[i];
+                let a = board[winCondition[0]];
+                let b = board[winCondition[1]];
+                let c = board[winCondition[2]];
+
+                // If any of the three cells are empty, skip (no winner yet)
+                if (a === '' || b === '' || c === '') {
+                    continue;
+                }
+                
+                // If all three match, the round is won
+                if (a === b && b === c) {
+                    roundWon = true;
+                    // Optional: Highlight winning cells
+                    winCondition.forEach(index => {
+                        cells[index].classList.add('bg-green-600', 'shadow-lg');
+                    });
+                    break;
+                }
+            }
+
+            if (roundWon) {
+                statusDisplay.innerHTML = winningMessage();
+                statusDisplay.classList.replace('bg-gray-700', 'bg-green-700');
+                gameActive = false;
+                return;
+            }
+
+            // Note: A traditional draw is not possible here since spaces are continuously freed.
+            // The game only ends on a win.
+            
+            // If no win, continue to the next player
+            handlePlayerChange();
+        }
+
+        function handleCellClick(clickedCellEvent) {
+            const clickedCell = clickedCellEvent.target;
+            const clickedCellIndex = parseInt(clickedCell.getAttribute('data-cell-index'));
+
+            // 1. Check if the game is inactive OR if the cell is occupied by the *other* player.
+            // A player can only place a mark in an empty spot or a spot they already occupy (to trigger removal).
+            if (!gameActive || (board[clickedCellIndex] !== "" && board[clickedCellIndex] !== currentPlayer)) {
+                return;
+            }
+            
+            // 2. Process the move
+            handleCellPlayed(clickedCell, clickedCellIndex);
+            
+            // 3. Check the result
+            handleResultValidation();
+        }
+
+        function handleRestartGame() {
+            // Reset all state variables
+            gameActive = true;
+            currentPlayer = "X";
+            board = ["", "", "", "", "", "", "", "", ""];
+            
+            // NEW: Reset the move queues
+            xMovesQueue = [];
+            oMovesQueue = [];
+
+            // Reset message and colors
+            statusDisplay.innerHTML = currentPlayerTurn();
+            statusDisplay.classList.remove('bg-green-700', 'bg-yellow-700');
+            statusDisplay.classList.add('bg-gray-700');
+            
+            // Clear the visual board
+            cells.forEach(cell => {
+                cell.innerHTML = "";
+                cell.classList.remove('x', 'o', 'bg-green-600', 'shadow-lg');
+            });
+        }
+
+        // --- EVENT LISTENERS ---
+
+        // Add click listener to each cell
+        cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+        
+        // Add click listener to the restart button
+        restartButton.addEventListener('click', handleRestartGame);
+
+    </script>
+</body>
+</html>
