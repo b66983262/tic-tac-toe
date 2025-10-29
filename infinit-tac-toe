@@ -3,79 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tic-Tac-Toe (3-Mark Rule)</title>
+    <title>Retro Tic-Tac-Toe (3-Mark Rule)</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom styles for the cells to handle scaling and text alignment */
+        /* Retro Font/Styling Simulation */
+        body {
+            font-family: monospace, sans-serif; /* Simulating digital/monospace display */
+            background-color: #282C34; /* Dark background */
+        }
+        h1 {
+            text-shadow: 2px 2px #1F1F1F; /* Slight shadow for a deeper, digital look */
+            color: #FFDE00; /* Bright yellow title */
+        }
+        .retro-box {
+            background-color: #333740; /* Darker card background */
+            border: 4px solid #FFDE00; /* Yellow border for arcade cabinet feel */
+            box-shadow: 0 0 20px rgba(255, 222, 0, 0.3); /* Yellow outer glow */
+        }
+        
+        /* Cell Styling */
         .cell {
             width: 100px;
             height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 4rem;
-            font-family: 'Inter', sans-serif;
+            font-size: 4.5rem; /* Slightly larger text */
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
             user-select: none;
-            color: #E5E7EB; /* Light gray text for X and O */
+            color: #E5E7EB; 
+            font-weight: 700;
         }
-        /* Mobile adjustment for smaller screens */
+        /* Mobile adjustment */
         @media (max-width: 640px) {
             .cell {
                 width: 80px;
                 height: 80px;
-                font-size: 3rem;
+                font-size: 3.5rem;
             }
         }
         /* Hover effect */
         .cell:hover:not(.x):not(.o) {
-            background-color: #374151; /* Darker hover */
+            background-color: #44475A; /* Lighter hover */
         }
 
-        /* Colors for X and O */
-        .x { color: #F87171; /* Red */ } 
-        .o { color: #60A5FA; /* Blue */ }
-
-        /* The overall theme */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #1F2937; /* Dark background */
+        /* High-Contrast Retro Colors for X and O */
+        .x { color: #FF4444; /* Bright Red */ } 
+        .o { color: #44BBFF; /* Bright Cyan */ }
+        .win-highlight {
+            background-color: #00FF99 !important; /* Neon Green win highlight */
+            box-shadow: 0 0 10px #00FF99;
         }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
 
-    <div class="bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-lg">
-        <h1 class="text-3xl font-bold text-center mb-6 text-white">Tic-Tac-Toe (3-Mark Limit)</h1>
+    <div class="retro-box p-8 rounded-xl w-full max-w-lg">
+        <h1 class="text-4xl font-extrabold text-center mb-6">ARCADE 3-MARK TTT</h1>
         
+        <!-- Scoreboard -->
+        <div class="flex justify-around items-center text-white text-2xl mb-6 p-3 rounded-lg bg-gray-700 border-2 border-gray-600">
+            <div class="text-center">
+                <span class="x font-bold">X</span> Score: <span id="x-score" class="x font-extrabold">0</span>
+            </div>
+            <div class="text-center">
+                <span class="o font-bold">O</span> Score: <span id="o-score" class="o font-extrabold">0</span>
+            </div>
+        </div>
+
         <!-- Game Status and Message Area -->
-        <div id="status-message" class="text-center text-xl font-medium mb-6 p-3 rounded-lg bg-gray-700 text-white">
+        <div id="status-message" class="text-center text-xl font-medium mb-6 p-3 rounded-lg bg-gray-600 text-white border-2 border-gray-500">
             Player X's turn
         </div>
 
         <!-- Game Board (3x3 Grid) -->
         <div id="game-board" class="grid grid-cols-3 mx-auto max-w-xs sm:max-w-md">
-            <!-- Grid cells, dynamically generated or placed here -->
-            <div data-cell-index="0" class="cell border-b-2 border-r-2 border-gray-600 rounded-tl-lg"></div>
-            <div data-cell-index="1" class="cell border-b-2 border-r-2 border-gray-600"></div>
-            <div data-cell-index="2" class="cell border-b-2 border-gray-600 rounded-tr-lg"></div>
+            <!-- Grid cells -->
+            <div data-cell-index="0" class="cell border-b-2 border-r-2 border-gray-500 rounded-tl-lg"></div>
+            <div data-cell-index="1" class="cell border-b-2 border-r-2 border-gray-500"></div>
+            <div data-cell-index="2" class="cell border-b-2 border-gray-500 rounded-tr-lg"></div>
 
-            <div data-cell-index="3" class="cell border-b-2 border-r-2 border-gray-600"></div>
-            <div data-cell-index="4" class="cell border-b-2 border-r-2 border-gray-600"></div>
-            <div data-cell-index="5" class="cell border-b-2 border-gray-600"></div>
+            <div data-cell-index="3" class="cell border-b-2 border-r-2 border-gray-500"></div>
+            <div data-cell-index="4" class="cell border-b-2 border-r-2 border-gray-500"></div>
+            <div data-cell-index="5" class="cell border-b-2 border-gray-500"></div>
 
-            <div data-cell-index="6" class="cell border-r-2 border-gray-600 rounded-bl-lg"></div>
-            <div data-cell-index="7" class="cell border-r-2 border-gray-600"></div>
+            <div data-cell-index="6" class="cell border-r-2 border-gray-500 rounded-bl-lg"></div>
+            <div data-cell-index="7" class="cell border-r-2 border-gray-500"></div>
             <div data-cell-index="8" class="cell rounded-br-lg"></div>
         </div>
         
-        <!-- Restart Button -->
-        <div class="text-center mt-8">
+        <!-- Control Buttons -->
+        <div class="text-center mt-8 space-x-4">
             <button id="restart-button" 
-                    class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md transition-all duration-150 transform active:scale-95">
-                Restart Game
+                    class="px-6 py-3 bg-green-500 hover:bg-green-600 text-gray-900 font-extrabold rounded-lg shadow-md transition-all duration-150 transform active:scale-95 border-2 border-white">
+                NEW GAME (KEEP SCORE)
+            </button>
+            <button id="reset-score-button" 
+                    class="px-4 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg shadow-md transition-all duration-150 transform active:scale-95 border-2 border-white text-sm">
+                RESET SCORES
             </button>
         </div>
 
@@ -90,15 +117,24 @@
         let gameActive = true;
         const MAX_MOVES = 3; // The maximum number of marks allowed per player
         
-        // NEW: Queues to track the last 3 move indices for each player (First-In, First-Out)
+        // NEW: Variable to track who starts the next round (initialized to X)
+        let starterPlayer = "X"; 
+
+        // Score variables and move queues
+        let xScore = 0;
+        let oScore = 0;
         let xMovesQueue = [];
         let oMovesQueue = [];
 
         // 2. DOM Elements
         const statusDisplay = document.getElementById('status-message');
-        const gameBoard = document.getElementById('game-board');
         const restartButton = document.getElementById('restart-button');
+        const resetScoreButton = document.getElementById('reset-score-button');
         const cells = document.querySelectorAll('.cell');
+        // Score DOM elements
+        const xScoreDisplay = document.getElementById('x-score');
+        const oScoreDisplay = document.getElementById('o-score');
+
 
         // 3. Winning Conditions (all possible 3-in-a-row combinations)
         const winningConditions = [
@@ -108,12 +144,17 @@
         ];
 
         // 4. Message Functions
-        const winningMessage = () => `Player ${currentPlayer} has won!`;
-        const drawMessage = () => `Game ended in a draw!`;
+        const winningMessage = () => `Player ${currentPlayer} WINS! Press NEW GAME to continue.`;
         const currentPlayerTurn = () => `Player ${currentPlayer}'s turn`;
 
         // 5. Initial Display
         statusDisplay.innerHTML = currentPlayerTurn();
+        
+        // Scoreboard Update Function
+        function updateScoreboard() {
+            xScoreDisplay.textContent = xScore;
+            oScoreDisplay.textContent = oScore;
+        }
 
         // --- GAME FUNCTIONS ---
 
@@ -139,9 +180,9 @@
                 // Clear the old position visually
                 const oldestCell = document.querySelector(`[data-cell-index="${oldestMoveIndex}"]`);
                 if (oldestCell) {
-                    // Remove the current player's class and any highlighting from the old cell
+                    // Remove the other player's class just in case of a bug, and remove win highlight
                     oldestCell.innerHTML = "";
-                    oldestCell.classList.remove(currentPlayer.toLowerCase(), 'bg-green-600', 'shadow-lg');
+                    oldestCell.classList.remove('x', 'o', 'win-highlight'); 
                 }
             }
         }
@@ -150,43 +191,52 @@
             // Switch player and update the status message
             currentPlayer = currentPlayer === "X" ? "O" : "X";
             statusDisplay.innerHTML = currentPlayerTurn();
+            statusDisplay.classList.remove('bg-red-700', 'bg-yellow-700', 'bg-green-700');
+            statusDisplay.classList.add('bg-gray-600');
         }
 
         function handleResultValidation() {
             let roundWon = false;
-            // Loop through all 8 winning conditions
+            let winningCells = [];
+
             for (let i = 0; i < winningConditions.length; i++) {
                 const winCondition = winningConditions[i];
                 let a = board[winCondition[0]];
                 let b = board[winCondition[1]];
                 let c = board[winCondition[2]];
 
-                // If any of the three cells are empty, skip (no winner yet)
                 if (a === '' || b === '' || c === '') {
                     continue;
                 }
                 
-                // If all three match, the round is won
                 if (a === b && b === c) {
                     roundWon = true;
-                    // Optional: Highlight winning cells
-                    winCondition.forEach(index => {
-                        cells[index].classList.add('bg-green-600', 'shadow-lg');
-                    });
+                    winningCells = winCondition;
                     break;
                 }
             }
 
             if (roundWon) {
+                // 1. Update Score and Display
+                if (currentPlayer === "X") {
+                    xScore++;
+                } else {
+                    oScore++;
+                }
+                updateScoreboard();
+
+                // 2. Highlight winning cells
+                winningCells.forEach(index => {
+                    cells[index].classList.add('win-highlight');
+                });
+
+                // 3. Update Status
                 statusDisplay.innerHTML = winningMessage();
-                statusDisplay.classList.replace('bg-gray-700', 'bg-green-700');
+                statusDisplay.classList.replace('bg-gray-600', 'bg-green-700');
                 gameActive = false;
                 return;
             }
 
-            // Note: A traditional draw is not possible here since spaces are continuously freed.
-            // The game only ends on a win.
-            
             // If no win, continue to the next player
             handlePlayerChange();
         }
@@ -209,25 +259,37 @@
         }
 
         function handleRestartGame() {
-            // Reset all state variables
+            // Step 1: Alternate the player who starts the next round
+            starterPlayer = starterPlayer === "X" ? "O" : "X";
+            
+            // Reset game state for a new round
             gameActive = true;
-            currentPlayer = "X";
+            currentPlayer = starterPlayer; // Set current player based on alternation
             board = ["", "", "", "", "", "", "", "", ""];
             
-            // NEW: Reset the move queues
+            // Reset the move queues
             xMovesQueue = [];
             oMovesQueue = [];
 
             // Reset message and colors
             statusDisplay.innerHTML = currentPlayerTurn();
             statusDisplay.classList.remove('bg-green-700', 'bg-yellow-700');
-            statusDisplay.classList.add('bg-gray-700');
+            statusDisplay.classList.add('bg-gray-600');
             
             // Clear the visual board
             cells.forEach(cell => {
                 cell.innerHTML = "";
-                cell.classList.remove('x', 'o', 'bg-green-600', 'shadow-lg');
+                cell.classList.remove('x', 'o', 'win-highlight');
             });
+        }
+        
+        function handleResetScores() {
+            xScore = 0;
+            oScore = 0;
+            // Reset starter player to X when scores are fully reset
+            starterPlayer = "X"; 
+            updateScoreboard();
+            handleRestartGame();
         }
 
         // --- EVENT LISTENERS ---
@@ -237,7 +299,12 @@
         
         // Add click listener to the restart button
         restartButton.addEventListener('click', handleRestartGame);
+        
+        // Add listener for the reset score button
+        resetScoreButton.addEventListener('click', handleResetScores);
 
+        // Initialize score display
+        updateScoreboard();
     </script>
 </body>
 </html>
